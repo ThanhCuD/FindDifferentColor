@@ -4,9 +4,11 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -14,32 +16,76 @@ namespace WindowsFormsApp2
 {
     public partial class Form1 : Form
     {
+        static int num = 0;
         public Form1()
         {
             InitializeComponent();
         }
-        
+
         private void button1_KeyDown(object sender, KeyEventArgs args)
         {
-            CaptureScreen();
-            var bmp = (Bitmap)Image.FromFile("TestColor.png");
-            var white = (Bitmap)Image.FromFile("white.png");
-            Color pixelColor = bmp.GetPixel(0, 0);
-            Color whiteColor = white.GetPixel(0, 0);
-            //white
-            //if (args.KeyValue.ToString() == "116")
-            //{
-            //    Point pointToScreen = PointToScreen(System.Windows.Forms.Cursor.Position);
-            //    Program.FirstPos = pointToScreen;
-            //    System.Media.SystemSounds.Asterisk.Play();
-            //}
-            //else if (args.KeyValue.ToString() == "117")
-            //{
-            //    Point pointToScreen = PointToScreen(System.Windows.Forms.Cursor.Position);
-            //    Program.SecondPos = pointToScreen;
-            //    System.Media.SystemSounds.Asterisk.Play();
-            //    CaptureScreen();
-            //}
+            if (args.KeyCode == Keys.Space)
+            {
+                try
+                {
+                    var arr = getPoint();
+                    num++;
+                    //if (num < 4)
+                    //{
+                    //    arr = new List<int> { 150, 280 };
+                    //}
+                    //else if (num < 10)
+                    //{
+                    //    arr = new List<int> { 100, 200, 300 };
+                    //}
+                    //else if (num < 20)
+                    //{
+                    //    arr = new List<int> { 50, 150, 250, 350 };
+                    //}
+                    //else if (num < 30)
+                    //{
+                        arr = new List<int> { 50, 125, 200, 275, 350 };
+                    //}
+                    CaptureScreen();
+                    var bmp = (Bitmap)Image.FromFile(@"teszt" + num + ".jpg");
+                    Color pixelColor = bmp.GetPixel(0, 0);
+                    Dictionary<int[], Color> dic = new Dictionary<int[], Color>();
+                    foreach (var x in arr)
+                    {
+                        foreach (var y in arr)
+                        {
+                            var ar = new int[] { x, y };
+                            dic.Add(ar, bmp.GetPixel(x, y));
+                        }
+                    }
+                    var dicDistin = dic.Values.Distinct();
+                    foreach (var item in dicDistin)
+                    {
+                        if (dic.Values.Where(_ => _ == item).Count() == 1)
+                        {
+                            var find = dic.FirstOrDefault(_ => _.Value == item);
+                            for (int i = find.Key[0]; i < find.Key[0] + 10; i++)
+                            {
+                                for (int j = find.Key[1]; j < find.Key[1] + 10; j++)
+                                {
+                                    bmp.SetPixel(i, j, Color.White);
+                                }
+                            }
+                        }
+                    }
+
+                    pictureBox1.Image = null;
+                    bmp.Save("recolor" + num + ".png", ImageFormat.Png);
+                    pictureBox1.Image = Image.FromFile("recolor" + num + ".png");
+                    pictureBox1.SizeMode = PictureBoxSizeMode.Normal;
+                }
+                catch
+                {
+
+                }
+
+            }
+
         }
 
         public void CaptureScreen()
@@ -53,23 +99,24 @@ namespace WindowsFormsApp2
                 captureGraphics.CopyFromScreen(750, 480, 0, 0, Screen.PrimaryScreen.Bounds.Size,
                             CopyPixelOperation.SourceCopy);
                 //Saving the Image File (I am here Saving it in My E drive).
-                captureBitmap.Save(@"teszt.jpg", ImageFormat.Jpeg);
+                captureBitmap.Save(@"teszt" + num + ".jpg", ImageFormat.Jpeg);
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
         }
-        public static RectangleF GetRectangle(PointF p1, PointF p2)
+        private List<int> getPoint()
         {
-            float top = Math.Min(p1.Y, p2.Y);
-            float bottom = Math.Max(p1.Y, p2.Y);
-            float left = Math.Min(p1.X, p2.X);
-            float right = Math.Max(p1.X, p2.X);
-
-            RectangleF rect = RectangleF.FromLTRB(left, top, right, bottom);
-
-            return rect;
+            try
+            {
+                var arr = txtPoint.Text.Split(',').Select(_ => int.Parse(_)).ToList();
+                return arr;
+            }
+            catch
+            {
+                return new List<int>();
+            }
         }
     }
 }
