@@ -18,10 +18,10 @@ namespace WindowsFormsApp2
         private List<int> lst4x4Y = new List<int> { 389, 460, 526, 600 };
         private List<int> lst5X = new List<int> { 566, 623, 683, 737, 786 };
         private List<int> lst5Y = new List<int> { 386, 440, 496, 554, 605 };
-        private List<int> lst6X = new List<int> { 575, 605, 650, 698, 741, 791 };
-        private List<int> lst6Y = new List<int> { 387, 427, 471, 516, 566, 611 };
-        private List<int> lst7X = new List<int> { 567, 595, 633, 675, 715, 754, 782 };
-        private List<int> lst7Y = new List<int> { 385, 417, 455, 495, 533, 574, 606 };
+        private List<int> lst6X = new List<int> { 575, 605, 650, 698, 741, 795 };
+        private List<int> lst6Y = new List<int> { 380, 427, 473, 520, 567, 610 };
+        private List<int> lst7X = new List<int> { 567, 595, 633, 675, 715, 754, 802 };
+        private List<int> lst7Y = new List<int> { 376, 417, 455, 495, 533, 574, 606 };
         public MockPoint(int num)
         {
             lst = new List<Point>();
@@ -52,7 +52,7 @@ namespace WindowsFormsApp2
                 arr1 = lst6X;
                 arr2 = lst6Y;
             }
-            else if (num <= 75)
+            else if (num <= 90)
             {
                 arr1 = lst7X;
                 arr2 = lst7Y;

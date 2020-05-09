@@ -18,7 +18,7 @@ namespace WindowsFormsApp2
         [DllImport("gdi32.dll", CharSet = CharSet.Auto, SetLastError = true, ExactSpelling = true)]
         public static extern int BitBlt(IntPtr hDC, int x, int y, int nWidth, int nHeight, IntPtr hSrcDC, int xSrc, int ySrc, int dwRop);
 
-        static int num =1;
+        static int num = 1;
         // this make window can alway on top
         private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
         private const UInt32 SWP_NOSIZE = 0x0001;
@@ -32,7 +32,7 @@ namespace WindowsFormsApp2
         public Form1()
         {
             InitializeComponent();
-            timer1.Interval = 700;
+            timer1.Interval = 650;
             timer1.Enabled = true;
         }
         Bitmap screenPixel = new Bitmap(1, 1, PixelFormat.Format32bppArgb);
@@ -105,31 +105,100 @@ namespace WindowsFormsApp2
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            
+            if (num >4)
+            {
+                CalculationAndDo();
+            }
+            else
+            {
+                if (start == true)
+                {
+                    var moc = new MockPoint(num);
+                    Dictionary<Point, Color> dic = new Dictionary<Point, Color>();
+                    var hashSet = new HashSet<Color>();
+                    foreach (var item in moc.lst)
+                    {
+                        var point = item;
+                        var color = GetColorAt(point);
+                        dic.Add(point, color);
+                    }
+                    var dicDistin = dic.Values.Distinct().ToList();
+                    foreach (var item in dicDistin)
+                    {
+                        if (dic.Values.Where(_ => _ == item).Count() == 1)
+                        {
+                            var find = dic.FirstOrDefault(_ => _.Value == item);
+                            MouseOperations.SetCursorPosition(find.Key.X, find.Key.Y);
+                            MouseOperations.MouseEvent(MouseOperations.MouseEventFlags.LeftUp);
+                            MouseOperations.MouseEvent(MouseOperations.MouseEventFlags.LeftDown);
+                            num++;
+                            label1.Text = num.ToString();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void CalculationAndDo()
+        {
             if (start == true)
             {
+                var flgNextCanbeChooseColor = false;
                 var moc = new MockPoint(num);
+                Color colorCompare = Color.Black;
                 Dictionary<Point, Color> dic = new Dictionary<Point, Color>();
                 var hashSet = new HashSet<Color>();
                 foreach (var item in moc.lst)
                 {
                     var point = item;
                     var color = GetColorAt(point);
-                    dic.Add(point, color);
-                }
-                var dicDistin = dic.Values.Distinct().ToList();
-                foreach (var item in dicDistin)
-                {
-                    if (dic.Values.Where(_ => _ == item).Count() == 1)
+                    if (flgNextCanbeChooseColor && colorCompare != color)
                     {
-                        var find = dic.FirstOrDefault(_ => _.Value == item);
-                        MouseOperations.SetCursorPosition(find.Key.X, find.Key.Y);
+                        MouseOperations.SetCursorPosition(point.X, point.Y);
                         MouseOperations.MouseEvent(MouseOperations.MouseEventFlags.LeftUp);
                         MouseOperations.MouseEvent(MouseOperations.MouseEventFlags.LeftDown);
                         num++;
                         label1.Text = num.ToString();
                         break;
                     }
+                    if (!dic.Values.Contains(color))
+                    {
+                        dic.Add(point, color);
+                    }
+                    else // chua
+                    {
+                        if (dic.Count() == 1)
+                        {
+                            colorCompare = dic.Values.First();
+                            flgNextCanbeChooseColor = true;
+                        }
+                        else if(dic.Count() == 2) // 2 mau khac nhau, them 1 mau moi
+                        {
+                            var cl1 = dic.Values.First();
+                            if( cl1 == color)
+                            {
+                                var find = dic.Keys.Last();
+                                MouseOperations.SetCursorPosition(find.X, find.Y);
+                                MouseOperations.MouseEvent(MouseOperations.MouseEventFlags.LeftUp);
+                                MouseOperations.MouseEvent(MouseOperations.MouseEventFlags.LeftDown);
+                                num++;
+                                label1.Text = num.ToString();
+                                break;
+                            }
+                            else
+                            {
+                                var find = dic.Keys.First();
+                                MouseOperations.SetCursorPosition(find.X, find.Y);
+                                MouseOperations.MouseEvent(MouseOperations.MouseEventFlags.LeftUp);
+                                MouseOperations.MouseEvent(MouseOperations.MouseEventFlags.LeftDown);
+                                num++;
+                                label1.Text = num.ToString();
+                                break;
+                            }
+                        }
+                    }
+
                 }
             }
         }
